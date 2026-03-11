@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campanhas | Trono sob a Tempestade</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { 500: '#d4a574' },
+                        secondary: { 500: '#f59e0b' },
+                        dark: { 900: '#2d1f10', 800: '#3d2817', 700: '#5a3d25' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-dark-900 text-gray-100 min-h-screen font-serif">
+    <div class="container py-4 space-y-4">
+        <section class="p-4 bg-dark-800 rounded-lg border border-dark-700 space-y-3">
+            <div class="flex items-center justify-between gap-2 flex-wrap">
+                <div>
+                    <h1 class="text-2xl font-bold text-secondary-500">Painel de Campanhas</h1>
+                    <p id="auth-status" class="text-sm text-gray-300">Carregando dados...</p>
+                    <p id="user-info" class="text-xs text-gray-400"></p>
+                </div>
+                <button id="logout-btn" class="bg-red-600/30 hover:bg-red-600/50 text-red-300 px-3 py-2 rounded text-sm">Sair</button>
+            </div>
+        </section>
+
+        <section class="p-4 bg-dark-800 rounded-lg border border-dark-700 space-y-3">
+            <h2 class="text-lg font-bold text-secondary-500">Campanhas</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                <select id="campaign-select" class="bg-dark-700 rounded px-2 py-2 text-sm focus:outline-none"></select>
+                <input id="campaign-name" type="text" placeholder="Nome da campanha (mestre)" class="bg-dark-700 rounded px-2 py-2 text-sm focus:outline-none">
+                <button id="create-campaign-btn" class="bg-violet-600/30 hover:bg-violet-600/50 text-violet-300 px-3 py-2 rounded text-sm">Criar Campanha</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                <input id="invite-code" type="text" placeholder="Código de convite" class="bg-dark-700 rounded px-2 py-2 text-sm focus:outline-none uppercase">
+                <button id="join-campaign-btn" class="bg-cyan-600/30 hover:bg-cyan-600/50 text-cyan-300 px-3 py-2 rounded text-sm">Entrar na Campanha</button>
+                <div id="current-invite" class="text-sm text-gray-300 flex items-center"></div>
+            </div>
+        </section>
+
+        <section class="p-4 bg-dark-800 rounded-lg border border-dark-700 space-y-3">
+            <div class="flex items-center justify-between flex-wrap gap-2">
+                <h2 class="text-lg font-bold text-secondary-500">Fichas da Campanha</h2>
+                <div class="flex gap-2">
+                    <button id="refresh-sheets-btn" class="bg-blue-600/30 hover:bg-blue-600/50 text-blue-300 px-3 py-2 rounded text-sm">Atualizar</button>
+                    <button id="new-sheet-btn" class="bg-amber-600/30 hover:bg-amber-600/50 text-amber-300 px-3 py-2 rounded text-sm">Nova Ficha</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                <select id="sheet-select" class="bg-dark-700 rounded px-2 py-2 text-sm focus:outline-none"></select>
+                <button id="open-sheet-btn" class="bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 px-3 py-2 rounded text-sm">Abrir Ficha</button>
+                <div id="sheet-hint" class="text-xs text-gray-400 flex items-center">Selecione uma ficha para abrir no editor.</div>
+            </div>
+        </section>
+    </div>
+
+    <script src="campanhas-integration.js"></script>
+</body>
+</html>

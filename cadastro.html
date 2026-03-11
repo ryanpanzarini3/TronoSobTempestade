@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro | Trono sob a Tempestade</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: { 500: '#d4a574' },
+                        secondary: { 500: '#f59e0b' },
+                        dark: { 900: '#2d1f10', 800: '#3d2817', 700: '#5a3d25' }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-dark-900 text-gray-100 min-h-screen font-serif flex items-center justify-center p-4">
+    <main class="w-full max-w-md arcane-box p-6 space-y-4">
+        <h1 class="text-2xl font-bold text-secondary-500">Criar conta</h1>
+        <p id="auth-status" class="text-sm text-gray-300">Após cadastro você será direcionado para o login.</p>
+
+        <form id="register-form" class="space-y-3">
+            <input id="register-name" type="text" placeholder="Nome" class="w-full bg-dark-700 rounded px-3 py-2 focus:outline-none" required>
+            <input id="register-email" type="email" placeholder="Email" class="w-full bg-dark-700 rounded px-3 py-2 focus:outline-none" required>
+            <input id="register-password" type="password" placeholder="Senha (mín. 6 caracteres)" class="w-full bg-dark-700 rounded px-3 py-2 focus:outline-none" required>
+            <select id="register-role" class="w-full bg-dark-700 rounded px-3 py-2 focus:outline-none">
+                <option value="player">Jogador</option>
+                <option value="master">Mestre</option>
+            </select>
+            <button type="submit" class="w-full bg-primary-500 hover:bg-primary-600 text-dark-900 px-3 py-2 rounded font-bold">Cadastrar</button>
+        </form>
+
+        <p class="text-sm text-gray-300">Já tem conta? <a href="login.html" class="text-secondary-400 font-bold">Entrar</a></p>
+    </main>
+
+    <script src="auth-pages.js"></script>
+</body>
+</html>
