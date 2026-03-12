@@ -103,12 +103,6 @@ function bindRegisterPage() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const token = getAuthToken();
-    if (token && (window.location.pathname.endsWith('/login.html') || window.location.pathname.endsWith('/cadastro.html'))) {
-        window.location.href = 'campanhas.html';
-        return;
-    }
-
     bindLoginPage();
     bindRegisterPage();
 });

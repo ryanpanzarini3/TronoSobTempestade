@@ -1,4 +1,4 @@
-const CACHE_NAME = 'grimorio-kael-v2';
+const CACHE_NAME = 'grimorio-kael-v3';
 const ASSETS_TO_CACHE = [
     './',
     './index.html',
@@ -50,6 +50,18 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
     const { request } = event;
     const url = new URL(request.url);
+
+    // Nunca cachear API/autenticação: sempre buscar da rede.
+    if (url.pathname.startsWith('/api/')) {
+        event.respondWith(fetch(request));
+        return;
+    }
+
+    // Só aplica cache para GET (POST/PUT/DELETE não devem passar pelo cache).
+    if (request.method !== 'GET') {
+        event.respondWith(fetch(request));
+        return;
+    }
 
     // Ignora requisições de API externas
     if (url.hostname !== self.location.hostname) {
