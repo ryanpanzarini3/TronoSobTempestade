@@ -1,4 +1,4 @@
-const CACHE_NAME = 'grimorio-kael-v1';
+const CACHE_NAME = 'grimorio-kael-v2';
 const ASSETS_TO_CACHE = [
     './',
     './index.html',

@@ -1,5 +1,24 @@
+function getAuthToken() {
+    const currentToken = sessionStorage.getItem('authToken');
+    if (currentToken) return currentToken;
+
+    const legacyToken = localStorage.getItem('authToken');
+    if (legacyToken) {
+        sessionStorage.setItem('authToken', legacyToken);
+        localStorage.removeItem('authToken');
+        return legacyToken;
+    }
+
+    return null;
+}
+
+function clearAuthToken() {
+    sessionStorage.removeItem('authToken');
+    localStorage.removeItem('authToken');
+}
+
 const CampaignState = {
-    token: localStorage.getItem('authToken') || null,
+    token: getAuthToken(),
     user: null,
     campaigns: [],
     sheets: [],
@@ -341,7 +360,7 @@ async function restoreSession() {
         await loadCampaigns();
         statusMessage('Campanhas carregadas com sucesso.');
     } catch {
-        localStorage.removeItem('authToken');
+        clearAuthToken();
         window.location.href = 'login.html';
     }
 }
@@ -360,7 +379,7 @@ function bindEvents() {
 
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
-            localStorage.removeItem('authToken');
+            clearAuthToken();
             window.location.href = 'login.html';
         });
     }

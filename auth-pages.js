@@ -5,6 +5,25 @@ function setAuthMessage(message, isError = false) {
     el.className = isError ? 'text-sm text-red-300' : 'text-sm text-gray-300';
 }
 
+function getAuthToken() {
+    const currentToken = sessionStorage.getItem('authToken');
+    if (currentToken) return currentToken;
+
+    const legacyToken = localStorage.getItem('authToken');
+    if (legacyToken) {
+        sessionStorage.setItem('authToken', legacyToken);
+        localStorage.removeItem('authToken');
+        return legacyToken;
+    }
+
+    return null;
+}
+
+function clearAuthToken() {
+    sessionStorage.removeItem('authToken');
+    localStorage.removeItem('authToken');
+}
+
 async function authApi(path, payload) {
     let response;
 
@@ -53,7 +72,8 @@ function bindLoginPage() {
             const password = document.getElementById('login-password').value;
             const { token } = await authApi('/api/auth/login', { email, password });
 
-            localStorage.setItem('authToken', token);
+            clearAuthToken();
+            sessionStorage.setItem('authToken', token);
             window.location.href = 'campanhas.html';
         } catch (error) {
             setAuthMessage(error.message, true);
@@ -83,7 +103,7 @@ function bindRegisterPage() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const token = localStorage.getItem('authToken');
+    const token = getAuthToken();
     if (token && (window.location.pathname.endsWith('/login.html') || window.location.pathname.endsWith('/cadastro.html'))) {
         window.location.href = 'campanhas.html';
         return;

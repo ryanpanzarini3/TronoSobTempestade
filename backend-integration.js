@@ -1,5 +1,24 @@
+function getAuthToken() {
+    const currentToken = sessionStorage.getItem('authToken');
+    if (currentToken) return currentToken;
+
+    const legacyToken = localStorage.getItem('authToken');
+    if (legacyToken) {
+        sessionStorage.setItem('authToken', legacyToken);
+        localStorage.removeItem('authToken');
+        return legacyToken;
+    }
+
+    return null;
+}
+
+function clearAuthToken() {
+    sessionStorage.removeItem('authToken');
+    localStorage.removeItem('authToken');
+}
+
 const AppSync = {
-    token: localStorage.getItem('authToken') || null,
+    token: getAuthToken(),
     user: null,
     campaignId: null,
     campaignName: '-',
@@ -204,7 +223,7 @@ async function restoreSessionAndContext() {
         await loadSheet(AppSync.sheetId);
         return true;
     } catch {
-        localStorage.removeItem('authToken');
+        clearAuthToken();
         window.location.href = 'login.html';
         return false;
     }
@@ -218,7 +237,7 @@ function bindEvents() {
 
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
-            localStorage.removeItem('authToken');
+            clearAuthToken();
             window.location.href = 'login.html';
         });
     }
