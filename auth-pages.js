@@ -6,15 +6,31 @@ function setAuthMessage(message, isError = false) {
 }
 
 async function authApi(path, payload) {
-    const response = await fetch(path, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-    });
+    let response;
 
-    const data = await response.json().catch(() => ({}));
+    try {
+        response = await fetch(path, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+    } catch {
+        throw new Error('Não foi possível conectar ao servidor. Verifique se o deploy está online.');
+    }
+
+    const contentType = response.headers.get('content-type') || '';
+    let data = {};
+    let rawText = '';
+
+    if (contentType.includes('application/json')) {
+        data = await response.json().catch(() => ({}));
+    } else {
+        rawText = await response.text().catch(() => '');
+    }
+
     if (!response.ok) {
-        throw new Error(data.error || 'Erro de autenticação');
+        const message = data.error || data.message || rawText || `Falha na autenticação (${response.status}).`;
+        throw new Error(message);
     }
 
     return data;

@@ -109,6 +109,8 @@ function renderUserInfo() {
 function renderCampaigns() {
     const select = document.getElementById('campaign-select');
     const invite = document.getElementById('current-invite');
+    const deleteCampaignBtn = document.getElementById('delete-campaign-btn');
+    const ownerHint = document.getElementById('campaign-owner-hint');
     if (!select) return;
 
     select.innerHTML = '';
@@ -137,10 +139,24 @@ function renderCampaigns() {
     if (invite) {
         invite.textContent = current ? `Código de convite: ${current.inviteCode}` : '';
     }
+
+    const canDeleteCampaign = !!current && current.masterId === CampaignState.user?.id;
+    if (deleteCampaignBtn) {
+        deleteCampaignBtn.disabled = !canDeleteCampaign;
+        deleteCampaignBtn.classList.toggle('opacity-50', !canDeleteCampaign);
+        deleteCampaignBtn.classList.toggle('cursor-not-allowed', !canDeleteCampaign);
+    }
+    if (ownerHint) {
+        ownerHint.textContent = canDeleteCampaign
+            ? 'Você é o mestre desta campanha e pode apagá-la.'
+            : 'Somente o mestre dono pode apagar campanha.';
+    }
 }
 
 function renderSheets() {
     const select = document.getElementById('sheet-select');
+    const deleteSheetBtn = document.getElementById('delete-sheet-btn');
+    const hint = document.getElementById('sheet-hint');
     if (!select) return;
 
     select.innerHTML = '';
@@ -148,6 +164,11 @@ function renderSheets() {
     if (!CampaignState.sheets.length) {
         select.innerHTML = '<option value="">Sem fichas nesta campanha</option>';
         CampaignState.currentSheetId = null;
+        if (deleteSheetBtn) {
+            deleteSheetBtn.disabled = true;
+            deleteSheetBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        }
+        if (hint) hint.textContent = 'Não há fichas nesta campanha.';
         return;
     }
 
@@ -163,6 +184,19 @@ function renderSheets() {
     }
 
     select.value = String(CampaignState.currentSheetId);
+
+    const selected = CampaignState.sheets.find((s) => s.id === CampaignState.currentSheetId);
+    const canDeleteSheet = !!selected && selected.playerId === CampaignState.user?.id;
+    if (deleteSheetBtn) {
+        deleteSheetBtn.disabled = !canDeleteSheet;
+        deleteSheetBtn.classList.toggle('opacity-50', !canDeleteSheet);
+        deleteSheetBtn.classList.toggle('cursor-not-allowed', !canDeleteSheet);
+    }
+    if (hint) {
+        hint.textContent = canDeleteSheet
+            ? 'Ficha selecionada é sua e pode ser apagada.'
+            : 'Você só pode apagar fichas criadas por você.';
+    }
 }
 
 async function loadCampaigns() {
@@ -241,6 +275,50 @@ async function createSheet() {
     window.location.href = `index.html?campaignId=${CampaignState.currentCampaignId}&sheetId=${sheet.id}`;
 }
 
+async function deleteSelectedCampaign() {
+    if (!CampaignState.currentCampaignId) {
+        throw new Error('Selecione uma campanha para apagar.');
+    }
+
+    const current = CampaignState.campaigns.find((c) => c.id === CampaignState.currentCampaignId);
+    if (!current || current.masterId !== CampaignState.user?.id) {
+        throw new Error('Apenas o mestre dono pode apagar campanha.');
+    }
+
+    const confirmed = confirm(`Apagar a campanha "${current.name}" e todas as fichas dela?`);
+    if (!confirmed) return;
+
+    await api(`/api/campaigns/${CampaignState.currentCampaignId}`, {
+        method: 'DELETE'
+    });
+
+    CampaignState.currentCampaignId = null;
+    CampaignState.currentSheetId = null;
+    localStorage.removeItem('selectedCampaignId');
+    await loadCampaigns();
+}
+
+async function deleteSelectedSheet() {
+    if (!CampaignState.currentSheetId) {
+        throw new Error('Selecione uma ficha para apagar.');
+    }
+
+    const selected = CampaignState.sheets.find((s) => s.id === CampaignState.currentSheetId);
+    if (!selected || selected.playerId !== CampaignState.user?.id) {
+        throw new Error('Você só pode apagar fichas que são suas.');
+    }
+
+    const confirmed = confirm(`Apagar a ficha "${selected.name}"?`);
+    if (!confirmed) return;
+
+    await api(`/api/sheets/${CampaignState.currentSheetId}`, {
+        method: 'DELETE'
+    });
+
+    CampaignState.currentSheetId = null;
+    await loadSheets(CampaignState.currentCampaignId);
+}
+
 function openSelectedSheet() {
     if (!CampaignState.currentCampaignId || !CampaignState.currentSheetId) {
         statusMessage('Selecione campanha e ficha para abrir.', true);
@@ -276,6 +354,8 @@ function bindEvents() {
     const refreshSheetsBtn = document.getElementById('refresh-sheets-btn');
     const newSheetBtn = document.getElementById('new-sheet-btn');
     const openSheetBtn = document.getElementById('open-sheet-btn');
+    const deleteCampaignBtn = document.getElementById('delete-campaign-btn');
+    const deleteSheetBtn = document.getElementById('delete-sheet-btn');
     const sheetSelect = document.getElementById('sheet-select');
 
     if (logoutBtn) {
@@ -300,6 +380,7 @@ function bindEvents() {
     if (sheetSelect) {
         sheetSelect.addEventListener('change', (event) => {
             CampaignState.currentSheetId = Number(event.target.value);
+            renderSheets();
         });
     }
 
@@ -351,6 +432,28 @@ function bindEvents() {
 
     if (openSheetBtn) {
         openSheetBtn.addEventListener('click', openSelectedSheet);
+    }
+
+    if (deleteCampaignBtn) {
+        deleteCampaignBtn.addEventListener('click', async () => {
+            try {
+                await deleteSelectedCampaign();
+                statusMessage('Campanha apagada com sucesso.');
+            } catch (error) {
+                statusMessage(error.message, true);
+            }
+        });
+    }
+
+    if (deleteSheetBtn) {
+        deleteSheetBtn.addEventListener('click', async () => {
+            try {
+                await deleteSelectedSheet();
+                statusMessage('Ficha apagada com sucesso.');
+            } catch (error) {
+                statusMessage(error.message, true);
+            }
+        });
     }
 }
 

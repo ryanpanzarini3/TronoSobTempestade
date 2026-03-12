@@ -84,10 +84,16 @@ function setReadonlyMode(readonly) {
     AppSync.canEdit = !readonly;
 
     const saveButton = document.getElementById('save-sheet-btn');
+    const deleteButton = document.getElementById('delete-sheet-btn');
     if (saveButton) {
         saveButton.disabled = readonly;
         saveButton.classList.toggle('opacity-50', readonly);
         saveButton.classList.toggle('cursor-not-allowed', readonly);
+    }
+    if (deleteButton) {
+        deleteButton.disabled = readonly;
+        deleteButton.classList.toggle('opacity-50', readonly);
+        deleteButton.classList.toggle('cursor-not-allowed', readonly);
     }
 
     if (readonly) {
@@ -142,6 +148,25 @@ async function saveCurrentSheet() {
     statusMessage('Ficha sincronizada com o servidor.');
 }
 
+async function deleteCurrentSheet() {
+    if (!AppSync.sheetId) {
+        throw new Error('Ficha não carregada.');
+    }
+
+    if (!AppSync.canEdit) {
+        throw new Error('Você só pode apagar sua própria ficha.');
+    }
+
+    const confirmed = confirm(`Deseja apagar a ficha "${AppSync.sheetName}"?`);
+    if (!confirmed) return false;
+
+    await api(`/api/sheets/${AppSync.sheetId}`, {
+        method: 'DELETE'
+    });
+
+    return true;
+}
+
 function setupAutosaveIntercept() {
     const originalSetItem = localStorage.setItem.bind(localStorage);
     localStorage.setItem = function (key, value) {
@@ -189,6 +214,7 @@ function bindEvents() {
     const logoutBtn = document.getElementById('logout-btn');
     const saveSheetBtn = document.getElementById('save-sheet-btn');
     const backCampaignsBtn = document.getElementById('back-campaigns');
+    const deleteSheetBtn = document.getElementById('delete-sheet-btn');
 
     if (logoutBtn) {
         logoutBtn.addEventListener('click', () => {
@@ -211,6 +237,19 @@ function bindEvents() {
                 }
                 await saveCurrentSheet();
                 statusMessage('Ficha salva manualmente.');
+            } catch (error) {
+                statusMessage(error.message, true);
+            }
+        });
+    }
+
+    if (deleteSheetBtn) {
+        deleteSheetBtn.addEventListener('click', async () => {
+            try {
+                const deleted = await deleteCurrentSheet();
+                if (deleted) {
+                    window.location.href = 'campanhas.html';
+                }
             } catch (error) {
                 statusMessage(error.message, true);
             }

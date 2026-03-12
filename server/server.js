@@ -218,6 +218,28 @@ app.post('/api/campaigns/:campaignId/sheets', requireAuth, (req, res) => {
     return res.status(201).json({ sheet });
 });
 
+app.delete('/api/campaigns/:campaignId', requireAuth, (req, res) => {
+    const campaignId = Number(req.params.campaignId);
+    const campaign = db.prepare('SELECT * FROM campaigns WHERE id = ?').get(campaignId);
+
+    if (!campaign) {
+        return res.status(404).json({ error: 'Campanha não encontrada.' });
+    }
+
+    if (campaign.master_id !== req.user.sub) {
+        return res.status(403).json({ error: 'Apenas o mestre dono pode apagar a campanha.' });
+    }
+
+    const tx = db.transaction(() => {
+        db.prepare('DELETE FROM sheets WHERE campaign_id = ?').run(campaignId);
+        db.prepare('DELETE FROM campaign_members WHERE campaign_id = ?').run(campaignId);
+        db.prepare('DELETE FROM campaigns WHERE id = ?').run(campaignId);
+    });
+
+    tx();
+    return res.json({ ok: true });
+});
+
 app.get('/api/sheets/:sheetId', requireAuth, (req, res) => {
     const sheetId = Number(req.params.sheetId);
     const sheet = db.prepare(`
@@ -268,6 +290,22 @@ app.put('/api/sheets/:sheetId', requireAuth, (req, res) => {
         WHERE id = ?
     `).run(name?.trim() || sheet.name, JSON.stringify(data || JSON.parse(sheet.data_json)), sheetId);
 
+    return res.json({ ok: true });
+});
+
+app.delete('/api/sheets/:sheetId', requireAuth, (req, res) => {
+    const sheetId = Number(req.params.sheetId);
+    const sheet = db.prepare('SELECT * FROM sheets WHERE id = ?').get(sheetId);
+
+    if (!sheet) {
+        return res.status(404).json({ error: 'Ficha não encontrada.' });
+    }
+
+    if (sheet.player_id !== req.user.sub) {
+        return res.status(403).json({ error: 'Apenas o dono da ficha pode apagar.' });
+    }
+
+    db.prepare('DELETE FROM sheets WHERE id = ?').run(sheetId);
     return res.json({ ok: true });
 });
 

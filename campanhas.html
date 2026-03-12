@@ -41,6 +41,11 @@
                 <button id="create-campaign-btn" class="bg-violet-600/30 hover:bg-violet-600/50 text-violet-300 px-3 py-2 rounded text-sm">Criar Campanha</button>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+                <div id="campaign-owner-hint" class="text-xs text-gray-400 flex items-center">Somente o mestre dono pode apagar campanha.</div>
+                <div></div>
+                <button id="delete-campaign-btn" class="bg-red-600/30 hover:bg-red-600/50 text-red-300 px-3 py-2 rounded text-sm">Apagar Campanha</button>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
                 <input id="invite-code" type="text" placeholder="Código de convite" class="bg-dark-700 rounded px-2 py-2 text-sm focus:outline-none uppercase">
                 <button id="join-campaign-btn" class="bg-cyan-600/30 hover:bg-cyan-600/50 text-cyan-300 px-3 py-2 rounded text-sm">Entrar na Campanha</button>
                 <div id="current-invite" class="text-sm text-gray-300 flex items-center"></div>
@@ -59,8 +64,9 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-2">
                 <select id="sheet-select" class="bg-dark-700 rounded px-2 py-2 text-sm focus:outline-none"></select>
                 <button id="open-sheet-btn" class="bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-300 px-3 py-2 rounded text-sm">Abrir Ficha</button>
-                <div id="sheet-hint" class="text-xs text-gray-400 flex items-center">Selecione uma ficha para abrir no editor.</div>
+                <button id="delete-sheet-btn" class="bg-red-600/30 hover:bg-red-600/50 text-red-300 px-3 py-2 rounded text-sm">Apagar Ficha Selecionada</button>
             </div>
+            <div id="sheet-hint" class="text-xs text-gray-400">Selecione uma ficha para abrir no editor. Você só consegue apagar ficha que é sua.</div>
         </section>
     </div>
 
