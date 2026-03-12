@@ -136,6 +136,9 @@ function renderCampaigns() {
 
     if (!CampaignState.campaigns.length) {
         select.innerHTML = '<option value="">Sem campanhas</option>';
+        CampaignState.currentCampaignId = null;
+        CampaignState.currentSheetId = null;
+        localStorage.removeItem('selectedCampaignId');
         if (invite) invite.textContent = '';
         return;
     }
@@ -223,10 +226,12 @@ async function loadCampaigns() {
     CampaignState.campaigns = campaigns;
     renderCampaigns();
 
-    if (CampaignState.currentCampaignId) {
+    const hasAccessToCurrent = CampaignState.campaigns.some((c) => c.id === CampaignState.currentCampaignId);
+    if (CampaignState.currentCampaignId && hasAccessToCurrent) {
         await loadSheets(CampaignState.currentCampaignId);
     } else {
         CampaignState.sheets = [];
+        CampaignState.currentSheetId = null;
         renderSheets();
     }
 }
@@ -359,9 +364,17 @@ async function restoreSession() {
         renderUserInfo();
         await loadCampaigns();
         statusMessage('Campanhas carregadas com sucesso.');
-    } catch {
-        clearAuthToken();
-        window.location.href = 'login.html';
+    } catch (error) {
+        const authErrors = ['Não autenticado', 'Token inválido', 'Token inválido ou expirado'];
+        const shouldLogout = authErrors.some((msg) => String(error?.message || '').includes(msg));
+
+        if (shouldLogout) {
+            clearAuthToken();
+            window.location.href = 'login.html';
+            return;
+        }
+
+        statusMessage(error?.message || 'Falha ao carregar campanhas.', true);
     }
 }
 
